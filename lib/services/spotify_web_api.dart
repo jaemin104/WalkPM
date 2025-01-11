@@ -95,4 +95,44 @@ class SpotifyWebApiService {
       setStatus(e.code, message: e.message);
     }
   }
+  //genre로 아티스트 검색하기
+  Future<List<Map<String, dynamic>>> searchArtistsByGenre(String genre) async {
+    if (_accessToken == null) {
+      _accessToken = await getAccessToken();
+      if (_accessToken == null) {
+        setStatus('Failed to get access token');
+        return [];
+      }
+    }
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://api.spotify.com/v1/search?q=genre:"$genre"&type=artist&limit=10'),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final tracks = data['artist']['items'] as List;
+        return tracks
+            .map((artist) => {
+                  'id': artist['id'], // 아티스트 ID
+                'name': artist['name'], // 아티스트 이름
+                'imageUrl': artist['images'].isNotEmpty
+                    ? artist['images'][0]['url']
+                    : null, // 아티스트 이미지
+                })
+            .toList();
+            
+      } else {
+        setStatus('Failed to search tracks: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      setStatus('Error searching tracks: $e');
+      return [];
+    }
+  }
 }

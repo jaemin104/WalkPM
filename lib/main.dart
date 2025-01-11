@@ -13,6 +13,7 @@ import 'widgets/sized_icon_button.dart';
 import 'services/spotify_remote.dart';
 import 'services/spotify_web_api.dart';
 
+
 /// 앱의 시작점. 환경 변수를 로드하고 앱을 실행합니다.
 var logger = Logger();
 
@@ -339,9 +340,4 @@ class HomeState extends State<Home> {
         });
   }
 
-  /// 디버깅을 위한 로그 출력 함수
-  void setStatus(String code, {String? message}) {
-    var text = message ?? '';
-    _logger.i('$code$text');
-  }
 }
