@@ -1,5 +1,3 @@
-// walk_goal_result.dart
-
 import 'package:flutter/material.dart';
 import 'package:spotify/services/json_service.dart'; // JsonService 경로 수정
 
@@ -19,7 +17,7 @@ class _WalkGoalResultScreenState extends State<WalkGoalResultScreen> {
   void initState() {
     super.initState();
     // BPM에 맞는 노래를 가져옴
-    _songs = JsonService().getSongsByBPM(widget.bpm.toInt());
+    _songs = JsonService().getSongsByBPMRange(widget.bpm); // bpm 값을 그대로 넘김
   }
 
   @override

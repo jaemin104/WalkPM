@@ -11,8 +11,13 @@ class JsonService {
     return jsonData.map((e) => e as Map<String, dynamic>).toList();
   }
 
-  Future<List<Map<String, dynamic>>> getSongsByBPM(int bpm) async {
+  Future<List<Map<String, dynamic>>> getSongsByBPMRange(double bpm) async {
+    // bpm을 double로 수정
     final songs = await loadSongs();
-    return songs.where((song) => song["Tempo"] == bpm).toList();
+    // BPM 범위 ±5 적용 (bpm은 double 타입으로 처리)
+    return songs.where((song) {
+      double songBPM = song["Tempo"].toDouble(); // Tempo 값도 double로 변환
+      return songBPM >= bpm - 5 && songBPM <= bpm + 5;
+    }).toList();
   }
 }

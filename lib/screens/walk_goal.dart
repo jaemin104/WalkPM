@@ -32,6 +32,8 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
   double _calculateBPM(double distance, double time) {
     // km/h로 속도 계산
     double speed = distance / (time / 60); // 속도 = 거리 / 시간 (분 단위로 변환)
+
+    // 속도에 따라 BPM 범위 조정
     if (speed < 3.0) {
       return 80.0; // 천천히 걷는 경우
     } else if (speed < 5.0) {
