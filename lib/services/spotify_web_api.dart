@@ -195,7 +195,7 @@ Future<List<Map<String, dynamic>>> fetchTracksByTitle(String trackTitle) async {
     throw Exception('Failed to fetch tracks for title: $trackTitle');
   }
 }
-4
+
 ///좋아요 한 목록 가져오기
 Future<List<Map<String, dynamic>>> getLikedTracks() async {
   if (_accessToken == null) {
