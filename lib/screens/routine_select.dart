@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spotify/model/routine_model.dart';
 import 'package:spotify/screens/routine_playlist.dart';
+import 'package:spotify/screens/routine_playlist_make.dart';
 
 class RoutineSelectPage extends StatelessWidget {
   const RoutineSelectPage({Key? key}) : super(key: key);
@@ -33,7 +34,7 @@ class RoutineSelectPage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 // 루틴 제목 버튼 클릭 시 routine_playlist.dart로 이동
-                Navigator.pushNamed(context, '/routine_playlist',
+                Navigator.pushNamed(context, '/routine_playlist_make',
                     arguments: routine);
               },
               child: Text(routine.title),

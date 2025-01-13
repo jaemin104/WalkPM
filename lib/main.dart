@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'model/routine_model.dart';
 import 'screens/routine_list.dart';
 import 'screens/routine_add.dart';
+import 'screens/routine_playlist_make.dart';
 
 void main() {
   runApp(
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
         '/routine_select': (context) => RoutineSelectPage(),
         '/routine_list': (context) => RoutineListPage(),
         '/routine_add': (context) => RoutineAddPage(),
+        '/routine_playlist_make': (context) => RoutinePlaylistMakePage(
+              routine: ModalRoute.of(context)!.settings.arguments as Routine,
+            ), // arguments 받기
       },
     );
   }
