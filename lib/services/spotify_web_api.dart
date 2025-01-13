@@ -4,14 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Spotify Web API 관련 기능을 처리하는 서비스 클래스
 class SpotifyWebApiService {
   final Function(String, {String? message}) setStatus;
   String? _accessToken;
 
   SpotifyWebApiService({required this.setStatus});
 
-  /// 인증 토큰을 얻는 메서드
+  // 인증 토큰을 얻는 메서드
   Future<String?> getAccessToken() async {
     try {
       var authenticationToken = await SpotifySdk.getAccessToken(
@@ -35,8 +34,7 @@ class SpotifyWebApiService {
     }
   }
 
-  /// 트랙을 검색하는 메서드
-  /// [query] 검색할 키워드
+  // 트랙을 검색하는 메서드
   Future<List<Map<String, dynamic>>> searchTracks(String query) async {
     if (_accessToken == null) {
       _accessToken = await getAccessToken();
@@ -58,16 +56,24 @@ class SpotifyWebApiService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final tracks = data['tracks']['items'] as List;
-        return tracks
-            .map((track) => {
-                  'id': track['id'],
-                  'uri': track['uri'],
-                  'name': track['name'],
-                  'artist': track['artists'][0]['name'],
-                  'album': track['album']['name'],
-                  'imageUrl': track['album']['images'][0]['url'],
-                })
-            .toList();
+
+        // 각 트랙의 'duration_ms' 추가
+        return await Future.wait(tracks.map((track) async {
+          final trackId = track['id'];
+          final trackDetails = await getTrackDetails(trackId);
+
+          return {
+            'id': track['id'],
+            'uri': track['uri'],
+            'name': track['name'],
+            'artist': track['artists'][0]['name'],
+            'album': track['album']['name'],
+            'imageUrl': track['album']['images'][0]['url'],
+            'duration': trackDetails['duration_ms'] != null
+                ? trackDetails['duration_ms'] / 1000 // 밀리초를 초로 변환
+                : 0,
+          };
+        }).toList());
       } else {
         setStatus('Failed to search tracks: ${response.statusCode}');
         return [];
@@ -78,21 +84,28 @@ class SpotifyWebApiService {
     }
   }
 
-  /// 현재 재생 중인 트랙을 라이브러리에 추가하는 메서드
-  Future<void> addToLibrary() async {
+  // 트랙의 세부 정보를 가져오는 메서드 (duration_ms 포함)
+  Future<Map<String, dynamic>> getTrackDetails(String trackId) async {
     try {
-      final playerState = await SpotifySdk.getPlayerState();
-      if (playerState?.track == null) {
-        setStatus('No track is currently playing');
-        return;
-      }
-
-      await SpotifySdk.addToLibrary(
-        spotifyUri: playerState!.track!.uri,
+      final response = await http.get(
+        Uri.parse('https://api.spotify.com/v1/tracks/$trackId'),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+        },
       );
-      setStatus('Added ${playerState.track!.name} to library');
-    } on PlatformException catch (e) {
-      setStatus(e.code, message: e.message);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'duration_ms': data['duration_ms'], // 재생 시간 (밀리초)
+        };
+      } else {
+        setStatus('Failed to get track details: ${response.statusCode}');
+        return {};
+      }
+    } catch (e) {
+      setStatus('Error getting track details: $e');
+      return {};
     }
   }
 }
