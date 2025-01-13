@@ -1,6 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 /// Spotify Remote SDK 관련 기능을 처리하는 서비스 클래스
 class SpotifyRemoteService {
@@ -136,6 +138,70 @@ class SpotifyRemoteService {
     } on MissingPluginException {
       setStatus('not implemented');
     }
+  }
+  /// Access Token을 가져오기 위한 메서드
+  Future<String?> fetchAccessToken() async {
+    try {
+      final accessToken = await SpotifySdk.getAccessToken(
+        clientId: dotenv.env['CLIENT_ID'] ?? '',
+        redirectUrl: dotenv.env['REDIRECT_URL'] ?? '',
+        scope: 'user-read-private,user-modify-playback-state',
+      );
+      return accessToken;
+    } on PlatformException catch (e) {
+      setStatus('Error fetching access token: ${e.message}');
+      return null;
+    }
+  }
+
+  /// 노래 제목으로 검색 후 첫 번째 결과 URI 가져오기
+  Future<String?> searchTrack(String trackName, String accessToken) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.spotify.com/v1/search?q=$trackName&type=track&limit=1'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final tracks = data['tracks']['items'] as List;
+        if (tracks.isNotEmpty) {
+          return tracks[0]['uri']; // 첫 번째 결과의 URI 반환
+        } else {
+          setStatus('No results for "$trackName"');
+          return null;
+        }
+      } else {
+        setStatus('Failed to search "$trackName": ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      setStatus('Error searching "$trackName": $e');
+      return null;
+    }
+  }
+
+  /// 노래 제목 리스트를 받아 재생
+  Future<void> playSongs(List<String> songTitles) async {
+    final accessToken = await fetchAccessToken();
+    if (accessToken == null) {
+      setStatus('Failed to get access token');
+      return;
+    }
+
+    for (int i = 0; i < songTitles.length; i++) {
+      final trackUri = await searchTrack(songTitles[i], accessToken);
+      if (trackUri != null) {
+        if (i == 0) {
+          await play(spotifyUri: trackUri); // 첫 번째 노래 재생
+        } else {
+          await SpotifySdk.queue(spotifyUri: trackUri); // 나머지는 큐에 추가
+        }
+      }
+    }
+    setStatus('Playlist queued and playing');
   }
 
 }
