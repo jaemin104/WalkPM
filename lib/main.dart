@@ -350,13 +350,18 @@ import 'package:flutter/material.dart';
 import 'screens/walk_goal.dart';
 import 'screens/routine_select.dart';
 import 'screens/mypage.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+//import 'screens/song_search_page.dart';
+import 'screens/new_walk_goal.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
 
-void main() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+// void main() async {
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   );
+//   runApp(MyApp());
+// }
+void main() {
   runApp(MyApp());
 }
 
@@ -367,7 +372,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainScreen(),
+      //home: MainScreen(),
+      home: WalkGoalScreen(),
       theme: ThemeData(
         fontFamily: 'GowunBatang', // 여기서 폰트 적용
       ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36013538394",
+    "project_id": "madcamp-2f204",
+    "storage_bucket": "madcamp-2f204.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36013538394:android:3ca21158e4b527309aac63",
+        "android_client_info": {
+          "package_name": "com.example.spotify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIens9YAEKs72v4CZdQRqIG58OrKbB3jA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
