@@ -58,6 +58,7 @@ class SpotifyWebApiService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final tracks = data['tracks']['items'] as List;
+        print(tracks);
         return tracks
             .map((track) => {
                   'id': track['id'],
@@ -96,43 +97,147 @@ class SpotifyWebApiService {
     }
   }
   //genre로 아티스트 검색하기
-  Future<List<Map<String, dynamic>>> searchArtistsByGenre(String genre) async {
+ Future<List<Map<String, dynamic>>> searchArtistsByGenre(String genre) async {
+  if (_accessToken == null) {
+    _accessToken = await getAccessToken();
     if (_accessToken == null) {
-      _accessToken = await getAccessToken();
-      if (_accessToken == null) {
-        setStatus('Failed to get access token');
-        return [];
-      }
-    }
-    try {
-      final response = await http.get(
-        Uri.parse(
-            'https://api.spotify.com/v1/search?q=genre:"$genre"&type=artist&limit=10'),
-        headers: {
-          'Authorization': 'Bearer $_accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final tracks = data['artist']['items'] as List;
-        return tracks
-            .map((artist) => {
-                  'id': artist['id'], // 아티스트 ID
-                'name': artist['name'], // 아티스트 이름
-                'imageUrl': artist['images'].isNotEmpty
-                    ? artist['images'][0]['url']
-                    : null, // 아티스트 이미지
-                })
-            .toList();
-            
-      } else {
-        setStatus('Failed to search tracks: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      setStatus('Error searching tracks: $e');
-      return [];
+      throw Exception('Failed to get access token');
     }
   }
+
+  try {
+    final response = await http.get(
+      Uri.parse('https://api.spotify.com/v1/search?q=$genre&type=artist&limit=20'),
+      headers: {
+        'Authorization': 'Bearer $_accessToken',
+      },
+    );
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final artists = data['artists']['items'] as List;
+      
+      print("Artists fetched: ${artists.length}");
+      return artists.map((artist) => {
+        'id': artist['id'],
+        'name': artist['name'],
+        'genres': artist['genres'],
+        'imageUrl': artist['images']?.isNotEmpty == true
+            ? artist['images'][0]['url']
+            : null,
+      }).toList();
+    } else {
+      print("Failed to fetch artists. Status code: ${response.statusCode}");
+      print("Error: ${response.body}");
+      throw Exception('Failed to load artists for genre: $genre');
+    }
+  } catch (e) {
+    print("Error occurred: $e");
+    throw Exception('Failed to load artists for genre: $genre');
+  }
+}
+//특정 가수의 노래 가져오기!
+Future<List<Map<String, dynamic>>> getTopTracks(String artistId) async {
+  if (_accessToken == null) {
+    _accessToken = await getAccessToken();
+    if (_accessToken == null) {
+      throw Exception('Failed to get access token');
+    }
+  }
+  //가수 노래 ID로 가져오기
+  final response = await http.get(
+    Uri.parse('https://api.spotify.com/v1/artists/$artistId/top-tracks?market=KR'),
+    headers: {
+      'Authorization': 'Bearer $_accessToken',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    final tracks = data['tracks'] as List;
+    return tracks.map((track) => {
+      'id': track['id'],          // 트랙 ID
+      'name': track['name'],      // 트랙 이름
+      'previewUrl': track['preview_url'], // 미리듣기 URL (옵션)
+      'uri': track['uri'],        // Spotify URI
+    }).toList();
+  } else {
+    print("Failed to fetch top tracks: ${response.statusCode}");
+    throw Exception('Failed to fetch top tracks for artist: $artistId');
+  }
+}
+///노래 제목으로 노래 가져오기
+Future<List<Map<String, dynamic>>> fetchTracksByTitle(String trackTitle) async {
+  final response = await http.get(
+    Uri.parse('https://api.spotify.com/v1/search?q=$trackTitle&type=track&limit=1'),
+    headers: {
+      'Authorization': 'Bearer $_accessToken',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    final tracks = data['tracks']['items'] as List;
+
+    return tracks.map((track) => {
+      'id': track['id'],            // 트랙 ID
+      'name': track['name'],        // 트랙 이름
+      'artist': track['artists'][0]['name'], // 첫 번째 가수 이름
+      'previewUrl': track['preview_url'],   // 미리듣기 URL (옵션)
+      'uri': track['uri'],          // Spotify URI
+      'imageUrl': track['album']['images'][0]['url'], // 앨범 이미지
+    }).toList();
+  } else {
+    print("Failed to fetch tracks by title: ${response.statusCode}");
+    throw Exception('Failed to fetch tracks for title: $trackTitle');
+  }
+}
+4
+///좋아요 한 목록 가져오기
+Future<List<Map<String, dynamic>>> getLikedTracks() async {
+  if (_accessToken == null) {
+    _accessToken = await getAccessToken();
+    if (_accessToken == null) {
+      throw Exception('Failed to get access token');
+    }
+  }
+
+  try {
+    final response = await http.get(
+      Uri.parse('https://api.spotify.com/v1/me/tracks?limit=50'),
+      headers: {
+        'Authorization': 'Bearer $_accessToken',
+      },
+    );
+    print('liked is working');
+    // 상태 코드 및 응답 출력
+    print('API Response Status Code: ${response.statusCode}');
+    print('API Response Body: ${response.body}');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+        final tracks = data['tracks']['items'] as List;
+        print(tracks);
+        return tracks
+            .map((track) => {
+                  'id': track['id'],
+                  'uri': track['uri'],
+                  'name': track['name'],
+                  'artist': track['artists'][0]['name'],
+                  'album': track['album']['name'],
+                  'imageUrl': track['album']['images'][0]['url'],
+                })
+            .toList();
+    } else {
+      print('Error: API returned status code ${response.statusCode}');
+      return [];
+    }
+  } catch (e) {
+    print('Error in getLikedTracks: $e');
+    return [];
+  }
+}
+
 }

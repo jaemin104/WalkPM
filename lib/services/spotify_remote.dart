@@ -126,7 +126,7 @@ class SpotifyRemoteService {
       setStatus('not implemented');
     }
   }
-
+  
   /// 이전 트랙으로 돌아가는 메서드
   Future<void> skipPrevious() async {
     try {
@@ -137,4 +137,5 @@ class SpotifyRemoteService {
       setStatus('not implemented');
     }
   }
+
 }

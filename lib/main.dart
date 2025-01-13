@@ -13,12 +13,12 @@ import 'widgets/sized_icon_button.dart';
 import 'services/spotify_remote.dart';
 import 'services/spotify_web_api.dart';
 
-
 /// 앱의 시작점. 환경 변수를 로드하고 앱을 실행합니다.
 var logger = Logger();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 이 줄 추가
+  WidgetsFlutterBinding.ensureInitialized();
   
   try {
     await dotenv.load(fileName: ".env");
@@ -35,6 +35,12 @@ void main() async {
   }
   
   runApp(MyApp());
+}
+Future<void> connectToSpotifyOnInit() async {
+  await SpotifySdk.connectToSpotifyRemote(
+      clientId: dotenv.env['CLIENT_ID']!,
+      redirectUrl: dotenv.env['REDIRECT_URL']!,
+    );
 }
 /// 앱의 기본 MaterialApp을 설정하는 위젯
 class MyApp extends StatelessWidget {
@@ -84,8 +90,47 @@ class HomeState extends State<Home> {
     super.initState();
     _remoteService = SpotifyRemoteService(setStatus: setStatus);
     _webApiService = SpotifyWebApiService(setStatus: setStatus);
+    searchArtistsExample('k-pop'); // 'popsong' 장르로 검색
+    getLikedTracksExample();
+    // Spotify Remote 연결 시도
+    connectToSpotifyOnInit();
+  }
+  void searchArtistsExample(String genre) async {
+    final spotifyService = SpotifyWebApiService(setStatus: (String status, {String? message}) {
+      print("Status: $status ${message ?? ''}");
+    });
+
+    final artists = await spotifyService.searchArtistsByGenre(genre);
+
+    if (artists.isEmpty) {
+      print("No artists found for genre: $genre");
+      return;
+    }
+
+    print("Artists found for genre '$genre':");
+    for (var artist in artists) {
+      print('ID: ${artist['id']}, Name: ${artist['name']}, Genres: ${artist['genres']}');
+    }
   }
 
+  /// 좋아요한 노래 가져오기
+  void getLikedTracksExample() async {
+    try {
+      final likedTracks = await _webApiService.getLikedTracks();
+
+      if (likedTracks.isEmpty) {
+        print("No liked tracks found.");
+        return;
+      }
+
+      print("My liked tracks:");
+      for (var track in likedTracks) {
+        print('ID: ${track['id']}, Name: ${track['name']}, Artist: ${track['artist']}, Album: ${track['album']}');
+      }
+    } catch (e) {
+      print("Error fetching liked tracks: $e");
+    }
+  }
   /// Spotify 연결 상태를 관리하고 UI를 구성하는 메인 build 메서드
   @override
   Widget build(BuildContext context) {
@@ -340,4 +385,29 @@ class HomeState extends State<Home> {
         });
   }
 
+
+  /// 디버깅을 위한 로그 출력 함수
+  void setStatus(String code, {String? message}) {
+    var text = message ?? '';
+    _logger.i('$code$text');
+  }
 }
+/*void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Spotify Liked Songs',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      home: LikedSongsScreen(), // LikedSongsScreen을 홈 화면으로 설정
+    );
+  }
+}*/

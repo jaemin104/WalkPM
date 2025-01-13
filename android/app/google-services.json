@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "785173113302",
+    "project_id": "walkpm-fcf56",
+    "storage_bucket": "walkpm-fcf56.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785173113302:android:bbcf544d036677e3a09c77",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdguSe8E9uRJ-xtG1x2tZOeyc2yY44W4k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
