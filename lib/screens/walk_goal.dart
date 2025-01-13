@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'walk_playlist.dart'; // walk_playlist.dart 파일 가져오기
+import 'walk_goal_result.dart'; // 결과 화면 import
 
 void main() {
   runApp(const WalkGoalApp());
@@ -28,7 +28,20 @@ class WalkGoalScreen extends StatefulWidget {
 class _WalkGoalScreenState extends State<WalkGoalScreen> {
   final TextEditingController _distanceController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  String _selectedGenre = "선택하기";
+
+  double _calculateBPM(double distance, double time) {
+    // km/h로 속도 계산
+    double speed = distance / (time / 60); // 속도 = 거리 / 시간 (분 단위로 변환)
+
+    // 속도에 따라 BPM 범위 조정
+    if (speed < 3.0) {
+      return 80.0; // 천천히 걷는 경우
+    } else if (speed < 5.0) {
+      return 110.0; // 보통 속도
+    } else {
+      return 130.0; // 빠르게 걷는 경우
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,24 +78,6 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                   style: TextStyle(fontSize: screenWidth * 0.05),
                 ),
                 SizedBox(height: screenHeight * 0.03),
-                // 추천 버튼들
-                Wrap(
-                  spacing: screenWidth * 0.05,
-                  runSpacing: screenHeight * 0.02,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildButton("천천히 산책하기"),
-                    _buildButton("명상하며 걷기"),
-                    _buildButton("신나게 달리기"),
-                    _buildButton("1시간 조깅하기"),
-                  ],
-                ),
-                Divider(
-                  color: Colors.black54,
-                  thickness: 1,
-                  indent: screenWidth * 0.1,
-                  endIndent: screenWidth * 0.1,
-                ),
                 // 입력 섹션
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
@@ -101,16 +96,22 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                         _timeController,
                       ),
                       SizedBox(height: screenHeight * 0.03),
-                      _buildGenreSelector(),
-                      SizedBox(height: screenHeight * 0.03),
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
+                            double distance =
+                                double.tryParse(_distanceController.text) ??
+                                    0.0;
+                            double time =
+                                double.tryParse(_timeController.text) ?? 0.0;
+
+                            // 계산된 BPM을 넘겨서 결과 화면으로 이동
+                            double bpm = _calculateBPM(distance, time);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    const WalkPlaylistScreen(),
+                                    WalkGoalResultScreen(bpm: bpm),
                               ),
                             );
                           },
@@ -144,30 +145,6 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
     );
   }
 
-  Widget _buildButton(String text) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const WalkPlaylistScreen(),
-          ),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFEFE5C9),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.black),
-      ),
-    );
-  }
-
   Widget _buildInputSection(
       String label, String placeholder, TextEditingController controller) {
     return Column(
@@ -189,34 +166,6 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
               borderSide: BorderSide.none,
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGenreSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "오늘은 어떤 장르를 들어볼까요?",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        DropdownButton<String>(
-          value: _selectedGenre,
-          items: <String>["선택하기", "팝", "재즈", "클래식", "힙합"]
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              _selectedGenre = newValue!;
-            });
-          },
         ),
       ],
     );

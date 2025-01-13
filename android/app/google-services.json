@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "785173113302",
-    "project_id": "walkpm-fcf56",
-    "storage_bucket": "walkpm-fcf56.firebasestorage.app"
+    "project_number": "36013538394",
+    "project_id": "madcamp-2f204",
+    "storage_bucket": "madcamp-2f204.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:785173113302:android:bbcf544d036677e3a09c77",
+        "mobilesdk_app_id": "1:36013538394:android:3ca21158e4b527309aac63",
         "android_client_info": {
-          "package_name": "com.android.application"
+          "package_name": "com.example.spotify"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCdguSe8E9uRJ-xtG1x2tZOeyc2yY44W4k"
+          "current_key": "AIzaSyCIens9YAEKs72v4CZdQRqIG58OrKbB3jA"
         }
       ],
       "services": {
