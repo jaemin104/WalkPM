@@ -1,189 +1,131 @@
 import 'package:flutter/material.dart';
-import 'routine_add.dart'; // routine_add.dart를 import
+import 'package:provider/provider.dart';
+import 'package:spotify/model/routine_model.dart';
+import 'routine_add.dart';
 
-class RoutineListApp extends StatelessWidget {
-  const RoutineListApp({Key? key}) : super(key: key);
-
+class RoutineListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Routine List',
-      home: const RoutineListScreen(),
-    );
-  }
-}
-
-class RoutineListScreen extends StatelessWidget {
-  const RoutineListScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final routines = Provider.of<RoutineModel>(context).routines;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF9DA58E),
+      backgroundColor: Color(0xFF9CAF88),
       appBar: AppBar(
-        backgroundColor: Color(0xFF9DA58E),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context); // 이전 페이지로 이동
-          },
-        ),
+        backgroundColor: Color(0xFF9CAF88),
+        title: Text('루틴 목록'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 상단 제목 및 버튼
-          Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: screenHeight * 0.05, horizontal: screenWidth * 0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.music_note, size: screenWidth * 0.1),
-                    SizedBox(width: 10),
-                    Text(
-                      "WalkPM",
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.08,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenHeight * 0.03),
-                Text(
-                  "자주 가는 길을 루틴으로 등록해 보세요!",
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.02),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // 새 루틴 추가 버튼 클릭 시 routine_add.dart로 이동
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RoutineAddScreen(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5C6E4F),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.1,
-                        vertical: screenHeight * 0.02,
-                      ),
-                    ),
+      body: ListView.builder(
+        itemCount: routines.length,
+        itemBuilder: (context, index) {
+          final routine = routines[index];
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Color(0xfffefae0),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 루틴 제목
+                  Expanded(
                     child: Text(
-                      "새 루틴 추가하기",
+                      routine.title,
                       style: TextStyle(
-                        fontSize: screenWidth * 0.05,
-                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Divider(
-            color: Colors.black54,
-            thickness: 1,
-            indent: screenWidth * 0.1,
-            endIndent: screenWidth * 0.1,
-          ),
-          // 루틴 리스트
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.1, vertical: screenHeight * 0.02),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "내 루틴",
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.06,
-                    fontWeight: FontWeight.w500,
+                  // 수정 및 삭제 버튼
+                  Row(
+                    children: [
+                      // 수정 버튼
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          _showEditDialog(context, routine, index);
+                        },
+                      ),
+                      // 삭제 버튼
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          Provider.of<RoutineModel>(context, listen: false)
+                              .removeRoutine(index);
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: screenHeight * 0.02),
-                _buildRoutineItem(context, "출근길"),
-                _buildRoutineItem(context, "본가 가는 길"),
-                _buildRoutineItem(context, "퇴근길"),
-                _buildRoutineItem(context, "우리 아들 학교 가는 길"),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Spacer(),
-        ],
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RoutineAddPage()),
+          );
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
 
-  // 루틴 항목 생성 함수
-  Widget _buildRoutineItem(BuildContext context, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              // 루틴 버튼 클릭 이벤트
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const RoutineAddScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEFE5C9),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+  // 다이얼로그를 띄워 루틴 수정하는 메서드
+  void _showEditDialog(BuildContext context, Routine routine, int index) {
+    final TextEditingController titleController =
+        TextEditingController(text: routine.title);
+    final TextEditingController durationController =
+        TextEditingController(text: routine.routineTime.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('루틴 수정'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(labelText: '루틴 제목'),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              text,
-              style: const TextStyle(color: Colors.black),
-            ),
+              TextField(
+                controller: durationController,
+                decoration: InputDecoration(labelText: '루틴 시간(분)'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          TextButton(
-            onPressed: () {
-              // 수정 버튼 클릭 이벤트
-            },
-            child: const Text(
-              "수정",
-              style: TextStyle(color: Colors.black),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('취소'),
             ),
-          ),
-          const SizedBox(width: 10),
-          TextButton(
-            onPressed: () {
-              // 삭제 버튼 클릭 이벤트
-            },
-            child: const Text(
-              "삭제",
-              style: TextStyle(color: Colors.black),
+            ElevatedButton(
+              onPressed: () {
+                final newTitle = titleController.text;
+                final newDuration = int.tryParse(durationController.text) ?? 0;
+
+                Provider.of<RoutineModel>(context, listen: false)
+                    .updateRoutine(index, newTitle, newDuration);
+
+                Navigator.pop(context);
+              },
+              child: Text('저장'),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

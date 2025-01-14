@@ -1,152 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:spotify/model/routine_model.dart';
+import 'package:provider/provider.dart';
 
-class RoutineAddApp extends StatelessWidget {
-  const RoutineAddApp({Key? key}) : super(key: key);
+class RoutineAddPage extends StatefulWidget {
+  final Routine? routine; // 기존 루틴 수정 시 사용할 routine
+  final int? routineIndex; // 기존 루틴의 인덱스 (수정 시에 필요)
+
+  // 새 루틴 추가 시에는 이 두 값은 null로 전달
+  RoutineAddPage({Key? key, this.routine, this.routineIndex}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Add Routine',
-      home: const RoutineAddScreen(),
-    );
-  }
+  _RoutineAddPageState createState() => _RoutineAddPageState();
 }
 
-class RoutineAddScreen extends StatelessWidget {
-  const RoutineAddScreen({Key? key}) : super(key: key);
+class _RoutineAddPageState extends State<RoutineAddPage> {
+  late TextEditingController _titleController;
+  late TextEditingController _timeController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.routine != null) {
+      // 기존 루틴 수정 시, 제목과 시간을 기존 값으로 초기화
+      _titleController = TextEditingController(text: widget.routine?.title);
+      _timeController =
+          TextEditingController(text: widget.routine?.routineTime.toString());
+    } else {
+      // 새 루틴 추가 시, 텍스트 필드를 비워두기
+      _titleController = TextEditingController();
+      _timeController = TextEditingController();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-      backgroundColor: const Color(0xFF9DA58E),
       appBar: AppBar(
-        backgroundColor: Color(0xFF9DA58E),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context); // 이전 페이지로 이동
-          },
-        ),
+        title: Text(widget.routine != null ? '루틴 수정' : '새 루틴 추가'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 상단 제목 및 버튼
-          Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: screenHeight * 0.05, horizontal: screenWidth * 0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.music_note, size: screenWidth * 0.1),
-                    SizedBox(width: 10),
-                    Text(
-                      "WalkPM",
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.08,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(labelText: '루틴 제목'),
             ),
-          ),
-          // 입력 필드 섹션
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "출발",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: screenHeight * 0.01),
-                _buildInputField("카이스트 본원 아름관"),
-                SizedBox(height: screenHeight * 0.02),
-                const Text(
-                  "도착",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: screenHeight * 0.01),
-                _buildInputField("카이스트 본원 IT융합빌딩"),
-                SizedBox(height: screenHeight * 0.03),
-                const Text(
-                  "거리는 850m, 소요시간은 14분이네요.\n내 걸음 속도에 맞춰 소요시간을 수정할까요?",
-                  style: TextStyle(fontSize: 16, height: 1.5),
-                ),
-                SizedBox(height: screenHeight * 0.02),
-                const Text(
-                  "소요시간",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: screenHeight * 0.01),
-                Row(
-                  children: [
-                    _buildInputField("14", widthFactor: 0.2),
-                    SizedBox(width: screenWidth * 0.02),
-                    const Text(
-                      "분",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenHeight * 0.05),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // 완료 버튼 클릭 이벤트
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5C6E4F),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.1,
-                        vertical: screenHeight * 0.02,
-                      ),
-                    ),
-                    child: Text(
-                      "완료",
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.05,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            TextField(
+              controller: _timeController,
+              decoration: InputDecoration(labelText: '루틴 시간(분)'),
+              keyboardType: TextInputType.number,
             ),
-          ),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                final title = _titleController.text;
+                final time = int.tryParse(_timeController.text) ?? 0;
 
-  // 입력 필드 위젯 생성 함수
-  Widget _buildInputField(String hintText, {double widthFactor = 1.0}) {
-    return Container(
-      width: widthFactor == 1.0 ? double.infinity : 100 * widthFactor,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFE5C9),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: hintText,
+                if (widget.routine != null) {
+                  // 수정된 루틴이 있을 경우
+                  Provider.of<RoutineModel>(context, listen: false)
+                      .updateRoutine(widget.routineIndex!, title, time);
+                } else {
+                  // 새 루틴 추가
+                  Provider.of<RoutineModel>(context, listen: false)
+                      .addRoutine(title, time);
+                }
+
+                Navigator.pop(context);
+              },
+              child: Text(widget.routine != null ? '수정하기' : '추가하기'),
+            ),
+          ],
         ),
       ),
     );
