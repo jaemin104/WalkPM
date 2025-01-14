@@ -9,13 +9,12 @@ class RoutineSelectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final routines = Provider.of<RoutineModel>(context).routines;
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFFA9B388), // 상단바 색상
         elevation: 0, // 그림자 제거
-        actions: [], // 앱바의 actions는 비워둠
+        actions: [],
       ),
       body: Container(
         color: Color(0xFFA9B388), // 배경색 설정
@@ -40,8 +39,7 @@ class RoutineSelectPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween, // 왼쪽과 오른쪽에 배치
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // 왼쪽과 오른쪽에 배치
                 children: [
                   Text(
                     '내 루틴',
@@ -83,8 +81,11 @@ class RoutineSelectPage extends StatelessWidget {
                     ),
                     onPressed: () {
                       // 루틴 제목 버튼 클릭 시 routine_playlist_make.dart로 이동
-                      Navigator.pushNamed(context, '/routine_playlist_make',
-                          arguments: routine);
+                      Navigator.pushNamed(
+                        context,
+                        '/routine_playlist_make',
+                        arguments: routine, // 루틴에 포함된 selectedSongs 전달
+                      );
                     },
                     child: Text(
                       routine.title,

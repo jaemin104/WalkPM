@@ -51,8 +51,7 @@ class _RoutinePlaylistMakePageState extends State<RoutinePlaylistMakePage> {
         selectedSongs.add(song);
         totalDuration += song.durationMs;
       }
-      if (totalDuration >= routineTimeMs)
-        break; // 루틴 시간이 밀리초로 계산된 값보다 크거나 같으면 종료
+      if (totalDuration >= routineTimeMs) break; // 루틴 시간이 초과되면 종료
     }
 
     return selectedSongs;
@@ -66,16 +65,47 @@ class _RoutinePlaylistMakePageState extends State<RoutinePlaylistMakePage> {
       ),
       body: _songs.isEmpty
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _selectedSongs.length,
-              itemBuilder: (context, index) {
-                final song = _selectedSongs[index];
-                return ListTile(
-                  title: Text(song.title),
-                  subtitle: Text(
-                      'BPM: ${song.tempo} | Duration: ${(song.durationMs / 1000).toString()} s'),
-                );
-              },
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _selectedSongs.length,
+                    itemBuilder: (context, index) {
+                      final song = _selectedSongs[index];
+                      return ListTile(
+                        title: Text(song.title),
+                        subtitle: Text(
+                            'BPM: ${song.tempo} | Duration: ${(song.durationMs / 1000).toString()} s'),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // OK 버튼 클릭 시 real_routine_playlist_info.dart로 이동
+                      Navigator.pushNamed(
+                        context,
+                        '/real_routine_playlist_info',
+                        arguments: _selectedSongs.map((song) => song.title).toList(),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green, // 버튼 색상
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 20.0), // 버튼 패딩
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
     );
   }

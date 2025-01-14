@@ -4,14 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Spotify Web API 관련 기능을 처리하는 서비스 클래스
 class SpotifyWebApiService {
   final Function(String, {String? message}) setStatus;
   String? _accessToken;
 
   SpotifyWebApiService({required this.setStatus});
 
-  /// 인증 토큰을 얻는 메서드
+  // 인증 토큰을 얻는 메서드
   Future<String?> getAccessToken() async {
     try {
       var authenticationToken = await SpotifySdk.getAccessToken(
@@ -35,8 +34,7 @@ class SpotifyWebApiService {
     }
   }
 
-  /// 트랙을 검색하는 메서드
-  /// [query] 검색할 키워드
+  // 트랙을 검색하는 메서드
   Future<List<Map<String, dynamic>>> searchTracks(String query) async {
     if (_accessToken == null) {
       _accessToken = await getAccessToken();

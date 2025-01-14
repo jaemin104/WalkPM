@@ -206,6 +206,7 @@ import 'model/routine_model.dart';
 import 'screens/routine_list.dart';
 import 'screens/routine_add.dart';
 import 'screens/routine_playlist_make.dart';
+import 'screens/real_routine_playlist_info.dart';
 
 void main() {
   runApp(
@@ -236,7 +237,11 @@ class MyApp extends StatelessWidget {
         '/routine_playlist_make': (context) => RoutinePlaylistMakePage(
               routine: ModalRoute.of(context)!.settings.arguments as Routine,
             ), // arguments 받기
-      },
+          '/real_routine_playlist_info': (context) {
+            final selectedSongs = ModalRoute.of(context)!.settings.arguments as List<String>;
+            return RealRoutinePlaylistInfo(selectedSongs: selectedSongs);
+          },
+        },
     );
   }
 }
