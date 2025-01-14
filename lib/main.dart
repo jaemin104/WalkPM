@@ -222,7 +222,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
       // //home: MainScreen(),
       home: MainScreen(),
       theme: ThemeData(
@@ -287,6 +287,7 @@ class _MainScreenState extends State<MainScreen> {
         selectedItemColor: Colors.white, // 선택된 아이콘과 텍스트 색
         unselectedItemColor: Colors.black, // 선택되지 않은 아이콘과 텍스트 색
       ),
+      floatingActionButton: null,
     );
   }
 }

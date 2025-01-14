@@ -8,53 +8,57 @@ class RoutineSelectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final routines = Provider.of<RoutineModel>(context).routines;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF9CAF88), // 상단바 색상
+        backgroundColor: Color(0xFFA9B388), // 상단바 색상
         elevation: 0, // 그림자 제거
-        title: Row(
-          children: [
-            Icon(
-              Icons.music_note,
-              size: 30,
-              color: Colors.black,
-            ),
-            SizedBox(width: 8),
-            Text(
-              'WalkPM',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit, color: Colors.black),
-            onPressed: () {
-              // 수정하기 버튼 클릭 시 routine_list.dart로 이동
-              Navigator.pushNamed(context, '/routine_list');
-            },
-          ),
-        ],
+        actions: [], // 앱바의 actions는 비워둠
       ),
       body: Container(
-        color: Color(0xFF9CAF88), // 배경색 설정
+        color: Color(0xFFA9B388), // 배경색 설정
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.music_note, size: screenWidth * 0.1),
+                const SizedBox(width: 10),
+                Text(
+                  "WalkPM",
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.08,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFEFAE0), // 텍스트 색 변경
+                  ),
+                ),
+              ],
+            ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(
-                '내 루틴',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+              child: Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween, // 왼쪽과 오른쪽에 배치
+                children: [
+                  Text(
+                    '내 루틴',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFEFAE0),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.edit, color: Color(0xFFFEFAE0)),
+                    onPressed: () {
+                      // 수정하기 버튼 클릭 시 routine_list.dart로 이동
+                      Navigator.pushNamed(context, '/routine_list');
+                    },
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -87,7 +91,7 @@ class RoutineSelectPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Color(0xFF5F6F52),
                       ),
                     ),
                   );

@@ -49,7 +49,7 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBDC9A3),
+      backgroundColor: const Color(0xFFA9B388),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -68,6 +68,7 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                       style: TextStyle(
                         fontSize: screenWidth * 0.08,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFFFEFAE0), // 텍스트 색 변경
                       ),
                     ),
                   ],
@@ -75,7 +76,41 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                 SizedBox(height: screenHeight * 0.02),
                 Text(
                   "빠르게 추천해 드릴게요!",
-                  style: TextStyle(fontSize: screenWidth * 0.05),
+                  style: TextStyle(
+                      fontSize: screenWidth * 0.05,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFEFAE0)), // 텍스트 색 변경
+                ),
+                SizedBox(height: screenHeight * 0.03),
+                // 버튼 4개 배치
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬
+                      children: [
+                        _buildSpeedButton("생각하며 걷기", 3.0),
+                        SizedBox(width: screenWidth * 0.05), // 버튼 간격
+                        _buildSpeedButton("천천히 산책하기", 4.0),
+                      ],
+                    ),
+                    SizedBox(height: screenHeight * 0.02), // 버튼 간격
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬
+                      children: [
+                        _buildSpeedButton("상쾌하게 조깅하기", 5.5),
+                        SizedBox(width: screenWidth * 0.05), // 버튼 간격
+                        _buildSpeedButton("빠르게 달리기", 7.0),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: screenHeight * 0.03),
+                // 가로선 추가
+                Divider(
+                  color: Colors.black, // 가로선 색상
+                  thickness: 1, // 두께
+                  indent: screenWidth * 0.1, // 좌측 여백
+                  endIndent: screenWidth * 0.1, // 우측 여백
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 // 입력 섹션
@@ -86,14 +121,16 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                     children: [
                       _buildInputSection(
                         "오늘은 얼마나 멀리 가볼까요?",
-                        "2 km",
+                        "거리를 입력하세요.(km)",
                         _distanceController,
+                        Color(0xFFFEFAE0), // 텍스트 색 변경
                       ),
                       SizedBox(height: screenHeight * 0.03),
                       _buildInputSection(
                         "오늘은 얼마동안 가볼까요?",
-                        "30분",
+                        "시간을 입력하세요.(분)",
                         _timeController,
+                        Color(0xFFFEFAE0), // 텍스트 색 변경
                       ),
                       SizedBox(height: screenHeight * 0.03),
                       Center(
@@ -129,7 +166,7 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                             "완료",
                             style: TextStyle(
                               fontSize: screenWidth * 0.05,
-                              color: Colors.white,
+                              color: Color(0xFFFEFAE0),
                             ),
                           ),
                         ),
@@ -145,14 +182,15 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
     );
   }
 
-  Widget _buildInputSection(
-      String label, String placeholder, TextEditingController controller) {
+  Widget _buildInputSection(String label, String placeholder,
+      TextEditingController controller, Color textColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.w600, color: textColor),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -168,6 +206,38 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSpeedButton(String label, double speed) {
+    return ElevatedButton(
+      onPressed: () {
+        // 계산된 BPM을 넘겨서 결과 화면으로 이동
+        double bpm = _calculateBPM(0.0, speed); // 거리와 시간을 고려하지 않음
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WalkGoalResultScreen(bpm: bpm),
+          ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF5F6F52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 10,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 16,
+          color: Color(0xFFFEFAE0),
+        ),
+      ),
     );
   }
 }
