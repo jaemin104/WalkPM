@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 class RoutinePlaylistInfo extends StatefulWidget {
   final List<String> songTitles;
@@ -14,12 +15,35 @@ class RoutinePlaylistInfo extends StatefulWidget {
 }
 
 class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
-  List<Map<String, dynamic>> songDetails = []; // 검색된 노래 정보 저장
+  List<Map<String, dynamic>> songDetails = [];
+  Map<String, dynamic>? currentTrack; // 현재 재생 중인 곡 정보
+  bool isPlaying = false; // 현재 재생 상태를 나타내는 변수
 
   @override
   void initState() {
     super.initState();
-    fetchSongDetails(); // 검색 결과 가져오기
+    connectToSpotifyRemote();
+    fetchSongDetails();
+  }
+
+  Future<void> connectToSpotifyRemote() async {
+    try {
+      final clientId = 'd65753df516d432290560b53ddcbdcb5';
+      final redirectUrl = 'spotify-sdk://auth';
+
+      final result = await SpotifySdk.connectToSpotifyRemote(
+        clientId: clientId,
+        redirectUrl: redirectUrl,
+      );
+
+      print(result
+          ? 'Connected to Spotify successfully'
+          : 'Failed to connect to Spotify');
+    } on PlatformException catch (e) {
+      print('Error connecting to Spotify: ${e.message}');
+    } on MissingPluginException {
+      print('Spotify SDK is not implemented on this platform.');
+    }
   }
 
   Future<void> fetchSongDetails() async {
@@ -63,7 +87,7 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
             'title': track['name'],
             'artist': track['artists'][0]['name'],
             'imageUrl': track['album']['images'][0]['url'],
-            'uri': track['uri'],
+            'uri': track['uri'], // Spotify URI
           };
         }
       } else {
@@ -75,6 +99,69 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
     return null;
   }
 
+  Future<void> playSong(String uri) async {
+    try {
+      print('Attempting to play song with URI: $uri');
+      await SpotifySdk.play(spotifyUri: uri);
+      print('Playback started successfully');
+    } catch (e) {
+      print('Error playing song: $e');
+    }
+  }
+
+  Future<void> pause() async {
+    try {
+      await SpotifySdk.pause();
+      print('Playback paused successfully');
+    } catch (e) {
+      print('Error pausing playback: $e');
+    }
+  }
+
+  Future<void> resume() async {
+    try {
+      await SpotifySdk.resume();
+      print('Playback resumed successfully');
+    } catch (e) {
+      print('Error resuming playback: $e');
+    }
+  }
+
+  Future<void> queueSong(String uri) async {
+    try {
+      print('Queuing song with URI: $uri');
+      await SpotifySdk.queue(spotifyUri: uri);
+      print('Song queued successfully');
+    } catch (e) {
+      print('Error queuing song: $e');
+    }
+  }
+
+  Future<void> addSongsToQueue() async {
+  for (var song in songDetails) {
+    print('Queuing song: ${song['uri']}');
+    await queueSong(song['uri']);
+  }
+  print('All songs added to the queue.');
+}
+
+    Future<void> skipNext() async {
+    try {
+      await SpotifySdk.skipNext();
+      print('Skipped to next track successfully');
+    } catch (e) {
+      print('Error skipping to next track: $e');
+    }
+  }
+
+  Future<void> skipPrevious() async {
+    try {
+      await SpotifySdk.skipPrevious();
+      print('Skipped to previous track successfully');
+    } catch (e) {
+      print('Error skipping to previous track: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,16 +170,116 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
         backgroundColor: const Color(0xFF9DA58E),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFFFEFAE0)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Routine Playlist'),
+        title: const Text(
+          'Routine Playlist',
+          style: TextStyle(color: Color(0xFFFEFAE0)),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: songDetails.isEmpty
-            ? const Center(child: CircularProgressIndicator())
-            : ListView.builder(
+        child: Column(
+          children: [
+            // 상단 현재 재생 중인 곡 섹션
+            if (currentTrack != null)
+              Column(
+                children: [
+                  Text(
+                    '현재 재생 중인 곡',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFFFEFAE0),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      image: DecorationImage(
+                        image: NetworkImage(currentTrack!['imageUrl']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    currentTrack!['title'],
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFFFEFAE0),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    currentTrack!['artist'],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFFFEFAE0),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous, color: Color(0xFFFEFAE0)),
+                        onPressed: () {
+                          skipPrevious(); // 이전 곡으로 이동
+                        },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (isPlaying) {
+                            pause(); // 재생 중단
+                          } else {
+                            if (currentTrack != null) {
+                              resume(); // 재생 시작
+                            }
+                          }
+                          setState(() {
+                            isPlaying = !isPlaying;
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5F6F52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          shadowColor: Colors.black.withOpacity(0.5),
+                          elevation: 8,
+                          fixedSize: const Size(59, 33),
+                        ),
+                        child: Text(
+                          isPlaying ? 'Stop' : 'Play',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Color(0xFFFEFAE0),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.skip_next, color: Color(0xFFFEFAE0)),
+                        onPressed: () {
+                          skipNext(); // 다음 곡으로 이동
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+
+            // 리스트뷰
+            Expanded(
+              child: ListView.builder(
                 itemCount: songDetails.length,
                 itemBuilder: (context, index) {
                   final song = songDetails[index];
@@ -105,30 +292,30 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
                     ),
                     title: Text(
                       song['title'],
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Color(0xFFFEFAE0)),
                     ),
                     subtitle: Text(
                       song['artist'],
-                      style: const TextStyle(color: Colors.white70),
+                      style: const TextStyle(color: Color(0xFFFEFAE0)),
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.play_arrow, color: Colors.green),
-                      onPressed: () {
-                        playSong(song['uri']); // 재생
+                      icon: const Icon(Icons.play_arrow, color: Color(0xFF5F6F52)),
+                      onPressed: () async {
+                        playSong(song['uri']); // 현재 곡 재생
+                        setState(() {
+                          currentTrack = song; // 현재 재생 곡 업데이트
+                          isPlaying = true;
+                        });
+                        await addSongsToQueue(); // 전체 대기열에 추가
                       },
                     ),
                   );
                 },
               ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  Future<void> playSong(String uri) async {
-    try {
-      await SpotifySdk.play(spotifyUri: uri);
-    } catch (e) {
-      print('Error playing song: $e');
-    }
   }
 }
