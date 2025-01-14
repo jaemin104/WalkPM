@@ -9,41 +9,64 @@ class RoutineListPage extends StatelessWidget {
     final routines = Provider.of<RoutineModel>(context).routines;
 
     return Scaffold(
+      backgroundColor: Color(0xFF9CAF88),
       appBar: AppBar(
+        backgroundColor: Color(0xFF9CAF88),
         title: Text('루틴 목록'),
       ),
       body: ListView.builder(
         itemCount: routines.length,
         itemBuilder: (context, index) {
           final routine = routines[index];
-          return ListTile(
-            title: Text(routine.title),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    // 수정 버튼 클릭 시 다이얼로그로 루틴 수정
-                    _showEditDialog(context, routine, index);
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    // 삭제 버튼 클릭 시 해당 루틴 삭제
-                    Provider.of<RoutineModel>(context, listen: false)
-                        .removeRoutine(index);
-                  },
-                ),
-              ],
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Color(0xfffefae0),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 루틴 제목
+                  Expanded(
+                    child: Text(
+                      routine.title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  // 수정 및 삭제 버튼
+                  Row(
+                    children: [
+                      // 수정 버튼
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          _showEditDialog(context, routine, index);
+                        },
+                      ),
+                      // 삭제 버튼
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          Provider.of<RoutineModel>(context, listen: false)
+                              .removeRoutine(index);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 새 루틴 추가하기 버튼 클릭 시 routine_add.dart로 이동
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => RoutineAddPage()),
@@ -84,7 +107,6 @@ class RoutineListPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                // 다이얼로그 닫기
                 Navigator.pop(context);
               },
               child: Text('취소'),
@@ -94,11 +116,9 @@ class RoutineListPage extends StatelessWidget {
                 final newTitle = titleController.text;
                 final newDuration = int.tryParse(durationController.text) ?? 0;
 
-                // 루틴 수정
                 Provider.of<RoutineModel>(context, listen: false)
                     .updateRoutine(index, newTitle, newDuration);
 
-                // 다이얼로그 닫기
                 Navigator.pop(context);
               },
               child: Text('저장'),
