@@ -315,12 +315,18 @@ Widget _buildContentItem(
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 14,
-            fontFamily: 'GowunBatang',
-            height: 1.5,
+        SizedBox(
+          width: screenWidth * 0.35, // 사진 크기와 동일한 너비로 제한
+          child: Text(
+            name,
+            style: const TextStyle(
+              fontSize: 14,
+              fontFamily: 'GowunBatang',
+              height: 1.5,
+            ),
+            maxLines: 2, // 최대 두 줄로 제한
+            overflow: TextOverflow.ellipsis, // 내용이 넘칠 경우 "..." 처리
+            softWrap: true, // 자동 줄바꿈 허용
           ),
         ),
       ],
