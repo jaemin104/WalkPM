@@ -32,15 +32,15 @@ class _RoutineAddPageState extends State<RoutineAddPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9CAF88), // 배경색 변경
+      backgroundColor: const Color(0xFFA9B388), // 배경색 변경
       appBar: AppBar(
         title: Text(
           widget.routine != null ? '루틴 수정' : '새 루틴 추가',
-          style: const TextStyle(color: Color(0xFFEFE5C9)), // 텍스트 색상
+          style: const TextStyle(color: Color(0xfffefae0),fontWeight: FontWeight.bold,), // 텍스트 색상
         ),
-        backgroundColor: const Color(0xFF5C6E4F), // 상단바 배경색
+        backgroundColor: const Color(0xFFA9B388), // 상단바 배경색
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFFEFE5C9)),
+        iconTheme: const IconThemeData(color: Color(0xfffefae0)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,7 +52,7 @@ class _RoutineAddPageState extends State<RoutineAddPage> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFEFE5C9), // 제목 텍스트 색상
+                color: Color(0xfffefae0), // 제목 텍스트 색상
               ),
             ),
             const SizedBox(height: 20),
@@ -118,7 +118,8 @@ class _RoutineAddPageState extends State<RoutineAddPage> {
                   widget.routine != null ? '수정하기' : '추가하기',
                   style: const TextStyle(
                     fontSize: 18,
-                    color: Color(0xFFEFE5C9), // 텍스트 색상
+                    color: Color(0xfffefae0),
+                    fontWeight: FontWeight.bold // 텍스트 색상
                   ),
                 ),
               ),

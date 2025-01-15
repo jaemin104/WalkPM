@@ -9,10 +9,12 @@ class RoutineListPage extends StatelessWidget {
     final routines = Provider.of<RoutineModel>(context).routines;
 
     return Scaffold(
-      backgroundColor: Color(0xFF9CAF88),
+      backgroundColor: Color(0xFFA9B388),
       appBar: AppBar(
-        backgroundColor: Color(0xFF9CAF88),
-        title: Text('루틴 목록'),
+        backgroundColor: Color(0xFFA9B388),
+        title: Text(
+          '루틴 목록',
+          style: TextStyle(color:Color(0xFFFEFAE0),fontWeight: FontWeight.bold,)),
       ),
       body: ListView.builder(
         itemCount: routines.length,
@@ -36,6 +38,7 @@ class RoutineListPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
+                        color: Color(0xFF5C6E4F)
                       ),
                     ),
                   ),
@@ -75,7 +78,7 @@ class RoutineListPage extends StatelessWidget {
         backgroundColor: const Color(0xfffefae0), // 배경색을 아이보리 색으로 설정
         child: const Icon(
           Icons.add,
-          color: Colors.black, // 아이콘 색상을 검정으로 설정 (필요에 따라 수정 가능)
+          color: Color(0xFF5C6E4F), // 아이콘 색상을 검정으로 설정 (필요에 따라 수정 가능)
         ),
       ),
     );
@@ -83,53 +86,109 @@ class RoutineListPage extends StatelessWidget {
 
   // 다이얼로그를 띄워 루틴 수정하는 메서드
   void _showEditDialog(BuildContext context, Routine routine, int index) {
-    final TextEditingController titleController =
-        TextEditingController(text: routine.title);
-    final TextEditingController durationController =
-        TextEditingController(text: routine.routineTime.toString());
+  final TextEditingController titleController =
+      TextEditingController(text: routine.title);
+  final TextEditingController durationController =
+      TextEditingController(text: routine.routineTime.toString());
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('루틴 수정'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(labelText: '루틴 제목'),
-              ),
-              TextField(
-                controller: durationController,
-                decoration: InputDecoration(labelText: '루틴 시간(분)'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFFA9B388), // 다이얼로그 배경색
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 모서리를 둥글게
+        ),
+        title: Text(
+          '루틴 수정',
+          style: const TextStyle(
+            color: Color(0xFFEFE5C9), // 텍스트 색상
+            fontWeight: FontWeight.bold, // 굵게
+            fontSize: 20,
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('취소'),
+        ),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                hintText: '루틴 제목을 입력하세요', // 힌트 텍스트로 변경
+                hintStyle: const TextStyle(
+                  color: Color(0xFF5C6E4F), // 힌트 텍스트 색상
+                ),
+                filled: true,
+                fillColor: const Color(0xFFFEFAE0), // 입력 필드 배경색
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              style: const TextStyle(color: Color(0xFF5C6E4F)),
             ),
-            ElevatedButton(
-              onPressed: () {
-                final newTitle = titleController.text;
-                final newDuration = int.tryParse(durationController.text) ?? 0;
-
-                Provider.of<RoutineModel>(context, listen: false)
-                    .updateRoutine(index, newTitle, newDuration);
-
-                Navigator.pop(context);
-              },
-              child: Text('저장'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: durationController,
+              decoration: InputDecoration(
+                hintText: '루틴 시간(분)을 입력하세요', // 힌트 텍스트로 변경
+                hintStyle: const TextStyle(
+                  color: Color(0xFF5C6E4F), // 힌트 텍스트 색상
+                ),
+                filled: true,
+                fillColor: const Color(0xFFFEFAE0), // 입력 필드 배경색
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Color(0xFF5C6E4F)),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFEFE5C9), // 텍스트 색상
+            ),
+            child: const Text('취소'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final newTitle = titleController.text;
+              final newDuration = int.tryParse(durationController.text) ?? 0;
+
+              Provider.of<RoutineModel>(context, listen: false)
+                  .updateRoutine(index, newTitle, newDuration);
+
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF5F6F52), // 버튼 색상
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              padding: const EdgeInsets.symmetric(
+                vertical: 12.0,
+                horizontal: 16.0,
+              ),
+            ),
+            child: const Text(
+              '저장',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFFEFE5C9), // 텍스트 색상
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 }

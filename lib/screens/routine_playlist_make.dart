@@ -63,13 +63,13 @@ Future<void> _loadSongs() async {
  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DA58E), // 배경 색상
+      backgroundColor: const Color(0xFFA9B388), // 배경 색상
       appBar: AppBar(
         title: Text(
           '${widget.routine.title} Playlist',
           style: const TextStyle(color: Color(0xFFEFE5C9)), // 글씨 색상
         ),
-        backgroundColor: const Color(0xFF9DA58E), // 배경 색상
+        backgroundColor: const Color(0xFFA9B388), // 배경 색상
         elevation: 0,
       ),
       body: _songs.isEmpty

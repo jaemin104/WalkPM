@@ -126,15 +126,15 @@ class _WalkGoalResultScreenState extends State<WalkGoalResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFBDC9A3), // 배경색 설정
+      backgroundColor: const Color(0xFFA9B388), // 배경색 설정
       appBar: AppBar(
         title: const Text(
-          'Walk Goal Result',
+          'Walk Goal Playlist',
           style: TextStyle(
             color: Color(0xFFEFE5C9), // 제목 텍스트 색상
           ),
         ),
-        backgroundColor: const Color(0xFF5C6E4F), // 상단바 배경색 설정
+        backgroundColor: const Color(0xFFA9B388), // 상단바 배경색 설정
         elevation: 0, // 상단바 그림자 제거
         iconTheme: const IconThemeData(
           color: Color(0xFFEFE5C9), // 뒤로가기 버튼 색상

@@ -171,7 +171,7 @@ Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
 
   return Scaffold(
-    backgroundColor: const Color(0xFFBDC9A3),
+    backgroundColor: const Color(0xFFA9B388),
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,7 +205,7 @@ Widget _buildUserInfoSection(double screenWidth, double screenHeight) {
               backgroundImage: profileImageUrl.isNotEmpty
                   ? NetworkImage(profileImageUrl)
                   : null,
-              backgroundColor: const Color(0xFFEFE5C9),
+              backgroundColor: const Color(0xFFA9B388),
               child: profileImageUrl.isEmpty
                   ? Icon(
                       Icons.person,

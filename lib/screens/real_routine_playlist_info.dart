@@ -212,9 +212,9 @@ class _RoutinePlaylistInfoState extends State<RealRoutinePlaylistInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9DA58E),
+      backgroundColor: const Color(0xFFA9B388),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF9DA58E),
+        backgroundColor: const Color(0xFFA9B388),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFFFEFAE0)),
