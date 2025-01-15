@@ -1,16 +1,68 @@
-# spotify
+# 1.  개요
 
-A new Flutter project.
+## 1.1. 프로젝트 소개
 
-## Getting Started
+- WalkPM은 산책 속도에 맞는 bpm의 노래로 플레이리스트를 만들어주는 앱입니다.
+- 원하는 속도에 어울리는 플레이리스트를 들음으로써 한층 무드 있게 산책할 수 있습니다.
 
-This project is a starting point for a Flutter application.
+![WalkPMcover3.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f6cb388f-3934-47d6-9928-26d2e10eb0fc/f94a97c1-1a2c-4ca1-a01c-af4cbc19cc32/8475dc30-d6e3-446a-bd70-c4114306e29e.png)
 
-A few resources to get you started if this is your first Flutter project:
+## 1.2. 팀원 소개
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 임수민
+    - 카이스트 신소재공학과 22학번
+    - api 연결, 프론트 개발
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 김재민
+    - 한양대학교 컴퓨터소프트웨어학부 23학번
+    - 피그마 디자인, 프론트 개발
+    
+
+---
+
+# 2. 기능
+
+## 2.1. Walk Goal Playlist🦶
+
+- 산책 목표 거리와 시간을 입력하면 속도를 계산해서 산책 속도에 적절한 bpm의 노래들로 플레이리스트를 구성해서 보여드려요.
+- 상단에 있는 ‘걷기, 산책하기, 조깅하기, 달리기’ 버튼을 누르면 목표 거리와 시간을 입력하지 않아도 바로 플레이리스트를 추천받을 수 있어요.
+- 플레이리스트로 가면 바로 재생할 수 있고 원하는 곡을 선택해서 재생할 수도 있어요.
+- (탭1 사진이나 움짤 넣기)
+
+## 2.2. Routine Playlist🔁
+
+- 음악을 들으면서 가다가 목적지에 도착해서 음악이 도중에 끊기면 아쉽지 않으셨나요?
+- 목적지까지 걸리는 시간을 입력하면 그 시간에 딱 맞게 플레이리스트를 구성해드려요.
+- 자주 가는 길이라면 루틴으로 등록해 보세요.
+- 똑같은 길을 걷더라도 매일 다양한 플레이리스트를 추천해 드릴게요.
+- (탭2 사진이나 움짤 넣기)
+
+## 2.3. Mypage👤
+
+- 스포티파이 계정에 연결되어 프로필을 가져옵니다.
+- 좋아요한 노래와 가수를 볼 수 있어요.
+- 스포티파이 앱과 연동되어 스포티파이 앱에서 좋아요한 항목이 WalkPM에서도 보이고 WalkPM에서 좋아요한 항목도 스포티파이 앱에서 보여요.
+- (탭3 사진이나 움짤 넣기)
+
+---
+
+# 3. 이슈
+
+- 스포티파이 audio features api로 bpm을 가져오려고 했는데 하필 두 달 전부터 bpm api가 막혀서 가져오지 못했다. 그래서 musicstax에서 bpm을 가져왔다. 스포티파이가 막힌 걸 알았을 때 🚨비~~~상~~~🚨이었는데 그래도 방법을 찾아서 주제를 바꾸지 않을 수 있었다.
+- 코드를 합쳤는데 실행이 안 되는 이슈가 있었다. 자바 버전..어쩌구 문제였는데 버전 낮추고 어쩌고 해서 해결했다. 완전 럭키비키다행비키였잖앙🍀
+
+---
+
+# 4. 후기
+
+- 임수민
+    - 처음 아이디어를 결정하는 것이 굉장히 어려웠는데 좋은 주제로 하게 된 것 같아 기쁘다
+    - 스포티파이가 원래 제공하던 webAPI를 모두 제공하였다면 더 다양한 측면에서 분석해 볼 수 있었을 것 같은데 아쉬움이 남는다.
+    - 좋은 아이디어와 디자인을 해준 재민이에게 고맙고 매주 느끼지만 시간이 진짜 빨리 가는 것 같다…
+    
+
+- 김재민
+    - 이번주는 약간 여유롭게 개발해서 좋았다.(좋은데요~)
+    - 그러면서 포기하게 된 기능들도 있긴 하지만 결과적으로 처음에 하려고 했던 기능들은 다 구현해서 만족한다.
+    - 마음이 잘 맞았던 수민언니에게 고맙고 3주차에도 밤새가며 열심히 한 분반 사람들에게 리스펙을 보낸다.
+    - 시간이 점점 빨리 간다. 남은 1주일도 좋사좋시 보내고 싶다. 화이팅!!
