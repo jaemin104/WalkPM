@@ -72,7 +72,11 @@ class RoutineListPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => RoutineAddPage()),
           );
         },
-        child: Icon(Icons.add),
+        backgroundColor: const Color(0xfffefae0), // 배경색을 아이보리 색으로 설정
+        child: const Icon(
+          Icons.add,
+          color: Colors.black, // 아이콘 색상을 검정으로 설정 (필요에 따라 수정 가능)
+        ),
       ),
     );
   }

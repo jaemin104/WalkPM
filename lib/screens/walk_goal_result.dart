@@ -94,6 +94,7 @@ import 'package:flutter/material.dart';
 import 'routine_playlist_info.dart'; // RoutinePlaylistInfo 페이지 import
 import 'package:spotify/services/json_service.dart'; // JsonService 클래스를 import (경로를 맞게 수정)
 
+// WalkGoalResultScreen 클래스 정의
 class WalkGoalResultScreen extends StatefulWidget {
   final double bpm;
 
@@ -106,54 +107,188 @@ class WalkGoalResultScreen extends StatefulWidget {
 class _WalkGoalResultScreenState extends State<WalkGoalResultScreen> {
   late Future<List<String>> songTitles;
 
+  // 초기화 메서드
   @override
   void initState() {
     super.initState();
-    // getSongsByBPMRange()에서 제목만 추출하여 songTitles에 저장
     songTitles = _getSongTitlesByBPM(widget.bpm);
   }
 
-  // BPM 범위에 맞는 제목만 추출하는 메서드
+  // BPM 값에 따라 노래 제목을 가져오는 메서드
   Future<List<String>> _getSongTitlesByBPM(double bpm) async {
-    // songs를 BPM 범위에 맞는 곡들로 가져오기
     final songs = await JsonService().getSongsByBPMRange(bpm);
-
-    // 제목을 List<String>으로 변환
     return songs
         .map<String>((song) => song['title'] ?? 'Unknown Song')
         .toList();
   }
 
+  // UI 구성 메서드
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFBDC9A3), // 배경색 설정
       appBar: AppBar(
-        title: Text('Walk Goal Result'),
+        title: const Text(
+          'Walk Goal Result',
+          style: TextStyle(
+            color: Color(0xFFEFE5C9), // 제목 텍스트 색상
+          ),
+        ),
+        backgroundColor: const Color(0xFF5C6E4F), // 상단바 배경색 설정
+        elevation: 0, // 상단바 그림자 제거
+        iconTheme: const IconThemeData(
+          color: Color(0xFFEFE5C9), // 뒤로가기 버튼 색상
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'You have selected BPM: ${widget.bpm}',
-              style: TextStyle(fontSize: 18),
+            // 추천 BPM 표시 텍스트
+            Center(
+              child: Text(
+                '추천 BPM _ ${widget.bpm.toStringAsFixed(0)} BPM',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF5C6E4F), // 텍스트 색상
+                ),
+              ),
             ),
-            // 버튼을 추가하여 RoutinePlaylistInfo 페이지로 이동
-            ElevatedButton(
-              onPressed: () async {
-                // getSongsByBPMRange 메서드를 통해 songTitles 리스트를 가져옴
-                List<String> titles = await songTitles;
-                // 버튼 클릭 시 RoutinePlaylistInfo로 이동하고 songTitles 전달
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        RoutinePlaylistInfo(songTitles: titles),
+
+            // 간격 추가
+            const SizedBox(height: 20),
+
+            // 노래 리스트
+            Expanded(
+              child: FutureBuilder<List<String>>(
+                future: songTitles,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF007A33), // 로딩 색상
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(
+                          color: Color(0xFFEFE5C9),
+                        ),
+                      ),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "추천된 노래가 없습니다.",
+                        style: TextStyle(
+                          color: Color(0xFFEFE5C9),
+                        ),
+                      ),
+                    );
+                  } else {
+                    final titles = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: titles.length,
+                      itemBuilder: (context, index) {
+                        final title = titles[index];
+
+                        // 노래 리스트 카드 스타일
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 8.0,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14.0,
+                            horizontal: 16.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEFE5C9), // 카드 배경색
+                            borderRadius: BorderRadius.circular(12.0), // 둥근 모서리
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1), // 그림자
+                                blurRadius: 6,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              color: Color(0xFF5C6E4F), // 텍스트 색상
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+
+            // 하단 버튼
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  // 노래 제목 가져오기
+                  List<String> titles = await songTitles;
+
+                  // RoutinePlaylistInfo 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RoutinePlaylistInfo(songTitles: titles),
+                    ),
+                  );
+                },
+
+                // 버튼 스타일
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF5C6E4F), // 버튼 배경색
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16.0,
+                    horizontal: 36.0,
                   ),
-                );
-              },
-              child: Text('Go to Playlist Info'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25.0), // 둥근 모서리
+                  ),
+                  elevation: 8, // 그림자 깊이
+                  shadowColor: Colors.black.withOpacity(0.25), // 그림자 색상
+                ),
+
+                // 버튼 텍스트 및 아이콘
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // 텍스트와 아이콘 간격 최소화
+                  children: [
+                    const Icon(
+                      Icons.arrow_forward, // 아이콘
+                      color: Color(0xFFEFE5C9), // 아이콘 색상
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8), // 텍스트와 아이콘 간격
+                    const Text(
+                      'Go to Playlist Info',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold, // 텍스트 두께
+                        color: Color(0xFFEFE5C9), // 텍스트 색상
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
+
+            // 간격 추가
+            const SizedBox(height: 20),
           ],
         ),
       ),

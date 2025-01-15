@@ -18,7 +18,8 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
   List<Map<String, dynamic>> songDetails = [];
   Map<String, dynamic>? currentTrack; // 현재 재생 중인 곡 정보
   bool isPlaying = false; // 현재 재생 상태를 나타내는 변수
-
+  bool isLiked = false;
+  
   @override
   void initState() {
     super.initState();
@@ -162,7 +163,60 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
       print('Error skipping to previous track: $e');
     }
   }
-  @override
+  Future<void> addToLibrary() async {
+    try {
+      final playerState = await SpotifySdk.getPlayerState();
+      if (playerState?.track == null) {
+        return;
+      }
+
+      await SpotifySdk.addToLibrary(
+        spotifyUri: playerState!.track!.uri,
+      );
+    } catch (e) {
+      print('Error adding to library: $e');
+    }
+  }
+
+  Future<void> toggleLike() async {
+    if (isLiked) {
+      print('Unlike functionality is not supported by Spotify SDK.');
+    } else {
+      await addToLibrary();
+    }
+    setState(() {
+      isLiked = !isLiked;
+    });
+  }
+  
+  Future<bool> checkIfLiked(String trackUri) async {
+  try {
+    final accessToken = await SpotifySdk.getAccessToken(
+      clientId: 'd65753df516d432290560b53ddcbdcb5',
+      redirectUrl: 'spotify-sdk://auth',
+      scope: 'user-library-read',
+    );
+
+    final response = await http.get(
+      Uri.parse('https://api.spotify.com/v1/me/tracks/contains?ids=${Uri.encodeComponent(trackUri)}'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as List;
+      return data.isNotEmpty && data[0] == true;
+    } else {
+      print('Failed to check liked status: ${response.statusCode}');
+      return false;
+    }
+  } catch (e) {
+    print('Error checking liked status: $e');
+    return false;
+  }
+}
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF9DA58E),
@@ -182,7 +236,6 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 상단 현재 재생 중인 곡 섹션
             if (currentTrack != null)
               Column(
                 children: [
@@ -194,16 +247,31 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: NetworkImage(currentTrack!['imageUrl']),
-                        fit: BoxFit.cover,
+                  Stack(
+                    children: [
+                      Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: DecorationImage(
+                            image: NetworkImage(currentTrack!['imageUrl']),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? Colors.red : Colors.white,
+                          ),
+                          onPressed: toggleLike,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -230,18 +298,14 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.skip_previous, color: Color(0xFFFEFAE0)),
-                        onPressed: () {
-                          skipPrevious(); // 이전 곡으로 이동
-                        },
+                        onPressed: skipPrevious,
                       ),
                       ElevatedButton(
                         onPressed: () {
                           if (isPlaying) {
-                            pause(); // 재생 중단
+                            pause();
                           } else {
-                            if (currentTrack != null) {
-                              resume(); // 재생 시작
-                            }
+                            resume();
                           }
                           setState(() {
                             isPlaying = !isPlaying;
@@ -252,10 +316,6 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          shadowColor: Colors.black.withOpacity(0.5),
-                          elevation: 8,
-                          fixedSize: const Size(59, 33),
                         ),
                         child: Text(
                           isPlaying ? 'Stop' : 'Play',
@@ -267,17 +327,13 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.skip_next, color: Color(0xFFFEFAE0)),
-                        onPressed: () {
-                          skipNext(); // 다음 곡으로 이동
-                        },
+                        onPressed: skipNext,
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
                 ],
               ),
-
-            // 리스트뷰
             Expanded(
               child: ListView.builder(
                 itemCount: songDetails.length,
@@ -301,12 +357,16 @@ class _RoutinePlaylistInfoState extends State<RoutinePlaylistInfo> {
                     trailing: IconButton(
                       icon: const Icon(Icons.play_arrow, color: Color(0xFF5F6F52)),
                       onPressed: () async {
-                        playSong(song['uri']); // 현재 곡 재생
+                        playSong(song['uri']);
                         setState(() {
-                          currentTrack = song; // 현재 재생 곡 업데이트
+                          currentTrack = song;
                           isPlaying = true;
                         });
-                        await addSongsToQueue(); // 전체 대기열에 추가
+                        // 좋아요 상태 확인 및 업데이트
+                          final likedStatus = await checkIfLiked(song['uri']);
+                          setState(() {
+                            isLiked = likedStatus;
+                          });
                       },
                     ),
                   );

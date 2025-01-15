@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:spotify_sdk/spotify_sdk.dart';
+import 'package:flutter/services.dart';
+
 
 void main() => runApp(const MyPageApp());
 
@@ -29,7 +31,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
   List<Map<String, dynamic>> likedSongs = [];
   List<Map<String, dynamic>> topArtists = [];
   String userName = '';
-  String userId = '';
   String profileImageUrl = '';
   String? accessToken;
 
@@ -75,7 +76,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
         final data = json.decode(response.body);
         setState(() {
           userName = data['display_name'] ?? 'Unknown User';
-          userId = data['id'] ?? 'Unknown ID';
           profileImageUrl = data['images'] != null && data['images'].isNotEmpty
               ? data['images'][0]['url']
               : '';
@@ -117,34 +117,51 @@ class _MyPageScreenState extends State<MyPageScreen> {
       print('Error fetching liked songs: $e');
     }
   }
- //들은 탑 아티스트가 아닌 팔로우한 아티스트로 바꿈!
+
   Future<void> fetchTopArtists() async {
-  try {
-    final response = await http.get(
-      Uri.parse('https://api.spotify.com/v1/me/following?type=artist&limit=10'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.spotify.com/v1/me/following?type=artist&limit=10'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final items = data['artists']['items'] as List; // 수정된 부분
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final items = data['artists']['items'] as List;
 
-      setState(() {
-        topArtists = items.map((item) {
-          return {
-            'name': item['name'],
-            'imageUrl': item['images'][0]['url'],
-          };
-        }).toList();
-      });
-    } else {
-      print('Failed to fetch top artists: ${response.statusCode}');
+        setState(() {
+          topArtists = items.map((item) {
+            return {
+              'name': item['name'],
+              'imageUrl': item['images'][0]['url'],
+            };
+          }).toList();
+        });
+      } else {
+        print('Failed to fetch top artists: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching top artists: $e');
     }
-  } catch (e) {
-    print('Error fetching top artists: $e');
   }
+
+  Future<void> disconnect() async {
+  try {
+    await SpotifySdk.pause();
+    var result = await SpotifySdk.disconnect();
+    setStatus(result ? 'Disconnect successful' : 'Disconnect failed');
+  } on PlatformException catch (e) {
+    setStatus('PlatformException occurred', code: e.code);
+  } on MissingPluginException {
+    setStatus('Not implemented');
+  }
+}
+
+
+  void setStatus(String message, {String? code}) {
+  print('Status: $message${code != null ? ', Code: $code' : ''}');
 }
 
 
@@ -177,40 +194,31 @@ class _MyPageScreenState extends State<MyPageScreen> {
         horizontal: screenWidth * 0.1,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CircleAvatar(
-            radius: screenWidth * 0.1,
-            backgroundImage: profileImageUrl.isNotEmpty
-                ? NetworkImage(profileImageUrl)
-                : null,
-            backgroundColor: const Color(0xFFEFE5C9),
-            child: profileImageUrl.isEmpty
-                ? Icon(
-                    Icons.person,
-                    size: screenWidth * 0.1,
-                    color: Colors.black,
-                  )
-                : null,
-          ),
-          SizedBox(width: screenWidth * 0.03),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
+              CircleAvatar(
+                radius: screenWidth * 0.1,
+                backgroundImage: profileImageUrl.isNotEmpty
+                    ? NetworkImage(profileImageUrl)
+                    : null,
+                backgroundColor: const Color(0xFFEFE5C9),
+                child: profileImageUrl.isEmpty
+                    ? Icon(
+                        Icons.person,
+                        size: screenWidth * 0.1,
+                        color: Colors.black,
+                      )
+                    : null,
+              ),
+              SizedBox(width: screenWidth * 0.03),
               Text(
                 userName,
                 style: TextStyle(
                   fontSize: screenWidth * 0.06,
                   fontFamily: 'GowunBatang',
                   fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                overflow: TextOverflow.ellipsis,
-                userId,
-                style: TextStyle(
-                  fontSize: screenWidth * 0.04,
-                  fontFamily: 'GowunBatang',
-                  color: Colors.grey[700],
                 ),
               ),
             ],
@@ -239,46 +247,56 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   Widget _buildContentSection(
-      String title, List<Map<String, dynamic>> items, double screenWidth, double screenHeight) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.1,
-        vertical: screenHeight * 0.02,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontFamily: 'GowunBatang',
-              fontWeight: FontWeight.bold,
-            ),
+  String title,
+  List<Map<String, dynamic>> items,
+  double screenWidth,
+  double screenHeight,
+) {
+  return Padding(
+    padding: EdgeInsets.symmetric(
+      horizontal: screenWidth * 0.1,
+      vertical: screenHeight * 0.02,
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontFamily: 'GowunBatang',
+            fontWeight: FontWeight.bold,
           ),
-          SizedBox(
-            height: screenHeight * 0.25,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return _buildContentItem(
-                  item['name'],
-                  item['imageUrl'],
-                  screenWidth,
-                  screenHeight,
-                );
-              },
-            ),
+        ),
+        SizedBox(height: screenHeight * 0.02), // 간격 추가
+        SizedBox(
+          height: screenHeight * 0.25,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return _buildContentItem(
+                item['name'],
+                item['imageUrl'],
+                screenWidth,
+                screenHeight,
+              );
+            },
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildContentItem(
-      String name, String imageUrl, double screenWidth, double screenHeight) {
+    String name,
+    String imageUrl,
+    double screenWidth,
+    double screenHeight,
+  ) {
     return Padding(
       padding: EdgeInsets.only(right: screenWidth * 0.05),
       child: Column(
@@ -295,7 +313,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
               ),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             name,
             style: const TextStyle(

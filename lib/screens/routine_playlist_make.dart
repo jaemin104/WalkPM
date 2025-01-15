@@ -42,29 +42,37 @@ class _RoutinePlaylistMakePageState extends State<RoutinePlaylistMakePage> {
     List<Song> selectedSongs = [];
     int totalDuration = 0;
 
-    // routineTime을 분에서 밀리초로 변환
     int routineTimeMs = routineTime * 60 * 1000;
 
     for (Song song in _songs) {
-      // 재생 시간(ms)을 비교할 때, 루틴 시간을 밀리초로 변환해서 비교
       if (totalDuration + song.durationMs <= routineTimeMs) {
         selectedSongs.add(song);
         totalDuration += song.durationMs;
       }
-      if (totalDuration >= routineTimeMs) break; // 루틴 시간이 초과되면 종료
+      if (totalDuration >= routineTimeMs) break;
     }
 
     return selectedSongs;
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF9DA58E), // 배경 색상
       appBar: AppBar(
-        title: Text('${widget.routine.title} Playlist'),
+        title: Text(
+          '${widget.routine.title} Playlist',
+          style: const TextStyle(color: Color(0xFFEFE5C9)), // 글씨 색상
+        ),
+        backgroundColor: const Color(0xFF9DA58E), // 배경 색상
+        elevation: 0,
       ),
       body: _songs.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF007A33), // 로딩 색상
+              ),
+            )
           : Column(
               children: [
                 Expanded(
@@ -72,40 +80,79 @@ class _RoutinePlaylistMakePageState extends State<RoutinePlaylistMakePage> {
                     itemCount: _selectedSongs.length,
                     itemBuilder: (context, index) {
                       final song = _selectedSongs[index];
-                      return ListTile(
-                        title: Text(song.title),
-                        subtitle: Text(
-                            'BPM: ${song.tempo} | Duration: ${(song.durationMs / 1000).toString()} s'),
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 8.0), // 여백 설정
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14.0, horizontal: 16.0), // 세로 크기 증가
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFE5C9), // 카드 배경색
+                          borderRadius: BorderRadius.circular(12.0), // 둥근 모서리
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15), // 그림자 색상
+                              blurRadius: 8, // 그림자 퍼짐
+                              offset: const Offset(0, 4), // 그림자 위치
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              song.title,
+                              style: const TextStyle(
+                                color: Color(0xFF007A33),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16, // 조금 큰 글씨 크기
+                              ),
+                            ),
+                            const SizedBox(height: 6), // 간격 증가
+                            Text(
+                              'BPM: ${song.tempo} | Duration: ${(song.durationMs / 1000).toStringAsFixed(1)} s',
+                              style: const TextStyle(
+                                color: Color(0xFF007A33),
+                                fontSize: 14, // 작은 글씨 크기
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                    left: 16.0, 
+                    right: 16.0, 
+                    top: 16.0, 
+                    bottom: 24.0, // 아래에서 띄우기
+                  ),
                   child: ElevatedButton(
                     onPressed: () {
-                      // OK 버튼 클릭 시 real_routine_playlist_info.dart로 이동
                       Navigator.pushNamed(
                         context,
                         '/real_routine_playlist_info',
-                        arguments: _selectedSongs.map((song) => song.title).toList(),
+                        arguments:
+                            _selectedSongs.map((song) => song.title).toList(),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green, // 버튼 색상
+                      backgroundColor: const Color(0xFF5F6F52), // 버튼 색상
                       padding: const EdgeInsets.symmetric(
-                          vertical: 12.0, horizontal: 20.0), // 버튼 패딩
+                          vertical: 10.0, horizontal: 20.0),
                     ),
                     child: const Text(
                       'OK',
                       style: TextStyle(
                         fontSize: 18,
-                        color: Colors.white,
+                        color: Color(0xFFEFE5C9), // 버튼 텍스트 색상
                       ),
                     ),
                   ),
                 ),
               ],
+              
             ),
     );
   }

@@ -16,9 +16,9 @@ class WalkPlaylistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF9DA58E), // 배경 색상 설정
+      backgroundColor: const Color(0xFFBDC9A3), // 배경 색상 설정
       appBar: AppBar(
-        backgroundColor: Color(0xFF9DA58E),
+        backgroundColor: const Color(0xFFBDC9A3),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),

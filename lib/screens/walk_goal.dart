@@ -60,9 +60,13 @@ class _WalkGoalScreenState extends State<WalkGoalScreen> {
                 // 상단 로고 및 제목 영역
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.music_note, size: screenWidth * 0.1),
-                    const SizedBox(width: 10),
+                    children: [
+                      Image.asset(
+                        'assets/app_icon_2.png', // 이미지 경로
+                        width: screenWidth * 0.15, // 이미지 너비
+                        height: screenWidth * 0.15, // 이미지 높이
+                        fit: BoxFit.cover, // 이미지 비율 유지
+                      ),
                     Text(
                       "WalkPM",
                       style: TextStyle(
