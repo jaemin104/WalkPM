@@ -3,6 +3,8 @@ import 'package:spotify/model/routine_model.dart';
 import 'package:spotify/model/song_model.dart'; // Song 모델 추가
 import 'package:flutter/services.dart'; // Asset 불러오기
 import 'dart:convert'; // json.decode 임포트
+import 'dart:math'; // Random 클래스 사용을 위해 추가
+
 
 class RoutinePlaylistMakePage extends StatefulWidget {
   final Routine routine;
@@ -27,15 +29,18 @@ class _RoutinePlaylistMakePageState extends State<RoutinePlaylistMakePage> {
   }
 
   // songs.json 파일에서 노래 불러오기
-  Future<void> _loadSongs() async {
-    final String response = await rootBundle.loadString('assets/songs.json');
-    final List<dynamic> data = json.decode(response);
-    setState(() {
-      _songs = data.map((json) => Song.fromJson(json)).toList();
-      _selectedSongs =
-          _getSongsForRoutine(widget.routine.routineTime); // 루틴 시간에 맞게 노래 선택
-    });
-  }
+Future<void> _loadSongs() async {
+  final String response = await rootBundle.loadString('assets/songs.json');
+  final List<dynamic> data = json.decode(response);
+  setState(() {
+    // 노래 목록을 가져오고 랜덤으로 섞음
+    _songs = data.map((json) => Song.fromJson(json)).toList();
+    _songs.shuffle(Random()); // Random 객체를 사용해 목록 섞기
+
+    // 루틴 시간에 맞는 노래 조합
+    _selectedSongs = _getSongsForRoutine(widget.routine.routineTime);
+  });
+}
 
   // 루틴 시간에 맞는 노래 조합하기
   List<Song> _getSongsForRoutine(int routineTime) {
