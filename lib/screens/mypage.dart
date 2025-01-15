@@ -154,7 +154,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBDC9A3),
+      backgroundColor: const Color(0xFFA9B388),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -9,9 +9,9 @@ class RoutineListPage extends StatelessWidget {
     final routines = Provider.of<RoutineModel>(context).routines;
 
     return Scaffold(
-      backgroundColor: Color(0xFF9CAF88),
+      backgroundColor: Color(0xFFBDC9A3),
       appBar: AppBar(
-        backgroundColor: Color(0xFF9CAF88),
+        backgroundColor: Color(0xFFBDC9A3),
         title: Text('루틴 목록'),
       ),
       body: ListView.builder(
